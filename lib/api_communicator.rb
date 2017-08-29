@@ -1,7 +1,5 @@
 require 'rest-client'
 require 'json'
-require 'pry'
-require_relative "../lib/command_line_interface.rb"
 
 def get_character_movies_from_api(character)
   page_number = 1
