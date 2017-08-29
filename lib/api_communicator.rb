@@ -1,51 +1,41 @@
 require 'rest-client'
 require 'json'
 require 'pry'
+require_relative "../lib/command_line_interface.rb"
 
 def get_character_movies_from_api(character)
-  #make the web request
   page_number = 1
-  current_page_string = RestClient.get("http://www.swapi.co/api/people/?page=#{page_number}")
-  current_page_json = JSON.parse(current_page_string)
-  until current_page_json["next"] == nil 
-    current_page_string = RestClient.get("http://www.swapi.co/api/people/?page=#{page_number}")
-    current_page_json = JSON.parse(current_page_string)
+  current_page = get_current_page(page_number)
 
-    current_page_json["results"].each do |person| 
+  until current_page["next"] == nil
+    current_page = get_current_page(page_number)
+
+    current_page["results"].each do |person|
       return person["films"].map {|film| JSON.parse(RestClient.get(film))} if person["name"].downcase == character
-    end 
+    end
 
     page_number += 1
-  end 
-  #all_characters = RestClient.get('http://www.swapi.co/api/people/')
-  #character_hash = JSON.parse(all_characters)
-  
-    # iterate over the character hash to find the collection of `films` for the given
-  #   `character`
-  # collect those film API urls, make a web request to each URL to get the info
-  #  for that film
-  # return value of this method should be collection of info about each film.
-  #  i.e. an array of hashes in which each hash reps a given film
-  # this collection will be the argument given to `parse_character_movies`
-  #  and that method will do some nice presentation stuff: puts out a list
-  #  of movies by title. play around with puts out other info about a given film.
+  end
+end
+
+def get_current_page(page_number)
+  current_page_string = RestClient.get("http://www.swapi.co/api/people/?page=#{page_number}")
+  JSON.parse(current_page_string)
 end
 
 def parse_character_movies(films_hash)
-  films_hash.each_with_index do |film, i| 
+  # if films_hash == nil
+  #   puts "This character does not exist. Have you even seen Star Wars?"
+  #
+  # else
+  if films_hash != nil
+  films_hash.each_with_index do |film, i|
     puts "#{i+1} #{film["title"]}"
-  end 
-  # some iteration magic and puts out the movies in a nice list
+  end
+end
 end
 
 def show_character_movies(character)
   films_hash = get_character_movies_from_api(character)
   parse_character_movies(films_hash)
 end
-
-
-
-## BONUS
-
-# that `get_character_movies_from_api` method is probably pretty long. Does it do more than one job?
-# can you split it up into helper methods?
