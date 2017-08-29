@@ -1,6 +1,7 @@
 require 'rest-client'
 require 'json'
 require 'pry'
+require_relative "../lib/command_line_interface.rb"
 
 def get_character_movies_from_api(character)
   page_number = 1
@@ -11,7 +12,7 @@ def get_character_movies_from_api(character)
 
     current_page["results"].each do |person| 
       return person["films"].map {|film| JSON.parse(RestClient.get(film))} if person["name"].downcase == character
-    end 
+    end
 
     page_number += 1
   end 
@@ -24,11 +25,11 @@ end
 
 
 def parse_character_movies(films_hash)
-  if films_hash == nil 
-    puts "This character does not exist. Have you even seen Star Wars?"
-  else
-    films_hash.each_with_index { |film, i| puts "#{i+1} #{film["title"]}" }
-  end 
+  if films_hash != nil
+  films_hash.each_with_index do |film, i|
+    puts "#{i+1} #{film["title"]}"
+  end
+end
 end
 
 def show_character_movies(character)
@@ -36,7 +37,3 @@ def show_character_movies(character)
   parse_character_movies(films_hash)
 end
 
-## BONUS
-
-# that `get_character_movies_from_api` method is probably pretty long. Does it do more than one job?
-# can you split it up into helper methods?
